@@ -1,0 +1,6 @@
+{
+  "name": "Urdu Braille",
+  "description": "Urdu Braille Master & Tutor - Pakistani Urdu Braille Standards AIOU Code 3601 (اردو بریل ماسٹر)",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

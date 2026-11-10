@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Urdu Braille Master - اردو بریل ماسٹر</title>
+  <!-- Local Fonts & Material Symbols (100% Offline) -->
+  <link href="fonts/material-symbols.css" rel="stylesheet" />
+  <link href="fonts/fonts.css" rel="stylesheet" />
+
+  <!-- Tailwind CSS Engine -->
+  <script src="vendor/tailwind.min.js"></script>
+  <script>
+    if (!window.tailwind) {
+      document.write('<script src="https://cdn.tailwindcss.com"><\/script>');
+    }
+  </script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            oledBlack: '#05080F',
+            darkSurface: '#0D1424',
+            darkBorder: '#1E293B',
+            brandBlue: '#2563EB',
+            brandEmerald: '#10B981',
+            brandAmber: '#F59E0B',
+            brandPurple: '#8B5CF6',
+            brandRose: '#F43F5E',
+            brailleDotActive: '#38BDF8',
+            brailleDotInactive: '#1E293B',
+            brailleLightActive: '#0284C7',
+            brailleLightInactive: '#CBD5E1'
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            urdu: ['Amiri', '"Noto Nastaliq Urdu"', 'serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- React 18 & Babel Standalone -->
+  <script src="vendor/react.production.min.js"></script>
+  <script>
+    if (!window.React) {
+      document.write('<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin><\/script>');
+    }
+  </script>
+  <script src="vendor/react-dom.production.min.js"></script>
+  <script>
+    if (!window.ReactDOM) {
+      document.write('<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin><\/script>');
+    }
+  </script>
+  <script src="vendor/babel.min.js"></script>
+  <script>
+    if (!window.Babel) {
+      document.write('<script src="https://unpkg.com/@babel/standalone/babel.min.js"><\/script>');
+    }
+  </script>
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      min-height: 100vh;
+    }
+    .font-urdu {
+      font-family: 'Amiri', 'Noto Nastaliq Urdu', serif;
+      line-height: 1.8;
+    }
+    .braille-cell {
+      display: inline-grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 3px;
+      padding: 4px;
+      border-radius: 6px;
+      width: 32px;
+      height: 46px;
+      box-sizing: border-box;
+      direction: ltr;
+    }
+    .braille-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 9999px;
+      transition: all 0.15s ease-in-out;
+    }
+    .flip-card-inner {
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-style: preserve-3d;
+    }
+    .flip-card-flipped {
+      transform: rotateY(180deg);
+    }
+    .backface-hidden {
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+    ::-webkit-scrollbar {
+      height: 6px;
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.6);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border-width: 0;
+    }
+  </style>
+</head>
+<body class="bg-oledBlack text-slate-100 antialiased selection:bg-brandBlue selection:text-white">
+  <div id="root"></div>
+
+  <script type="text/babel" src="UrduBrailleApp.jsx"></script>
+</body>
+</html>
