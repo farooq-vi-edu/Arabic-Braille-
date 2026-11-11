@@ -1,0 +1,91 @@
+name: Build Android App Bundle (.aab)
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-aab:
+    name: Build & Sign Android .aab
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install NPM Dependencies
+        run: npm ci || npm install
+
+      - name: Build Web Application
+        run: npm run build
+
+      - name: Sync Capacitor Android
+        run: npx cap sync android
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Setup Keystore
+        id: setup_keystore
+        run: |
+          mkdir -p keystore
+          KEYSTORE_PATH="keystore/release.keystore"
+          
+          if [ -n "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" ]; then
+            echo "Using production signing keystore from GitHub Secrets..."
+            echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > "$KEYSTORE_PATH"
+            echo "store_password=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" >> $GITHUB_OUTPUT
+            echo "key_alias=${{ secrets.ANDROID_KEY_ALIAS }}" >> $GITHUB_OUTPUT
+            echo "key_password=${{ secrets.ANDROID_KEY_PASSWORD }}" >> $GITHUB_OUTPUT
+          else
+            echo "No GitHub Secret keystore found. Generating automated release keystore for CI..."
+            keytool -genkey -v \
+              -keystore "$KEYSTORE_PATH" \
+              -alias arabicbraille \
+              -keyalg RSA \
+              -keysize 2048 \
+              -validity 10000 \
+              -storepass android123 \
+              -keypass android123 \
+              -dname "CN=ArabicBrailleHub, OU=Mobile, O=ArabicBraille, L=Islamabad, ST=ICT, C=PK"
+            echo "store_password=android123" >> $GITHUB_OUTPUT
+            echo "key_alias=arabicbraille" >> $GITHUB_OUTPUT
+            echo "key_password=android123" >> $GITHUB_OUTPUT
+          fi
+          echo "keystore_path=$(pwd)/$KEYSTORE_PATH" >> $GITHUB_OUTPUT
+
+      - name: Make Gradle Wrapper Executable
+        run: chmod +x android/gradlew
+
+      - name: Build Release Android App Bundle (.aab)
+        working-directory: android
+        run: |
+          ./gradlew bundleRelease \
+            -PRELEASE_STORE_FILE="${{ steps.setup_keystore.outputs.keystore_path }}" \
+            -PRELEASE_STORE_PASSWORD="${{ steps.setup_keystore.outputs.store_password }}" \
+            -PRELEASE_KEY_ALIAS="${{ steps.setup_keystore.outputs.key_alias }}" \
+            -PRELEASE_KEY_PASSWORD="${{ steps.setup_keystore.outputs.key_password }}" \
+            --no-daemon
+
+      - name: Upload .aab Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: arabic-braille-hub-release-aab
+          path: android/app/build/outputs/bundle/release/*.aab
+          if-no-files-found: error
+          retention-days: 30
